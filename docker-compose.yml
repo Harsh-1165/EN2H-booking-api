@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - sqlite-data:/usr/src/app/data
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_TYPE=sqlite
+      - DATABASE_NAME=/usr/src/app/data/database.sqlite
+      - JWT_SECRET=super_secret_access_key_change_me_in_production
+      - JWT_EXPIRATION=1h
+      - JWT_REFRESH_SECRET=super_secret_refresh_key_change_me_in_production
+      - JWT_REFRESH_EXPIRATION=7d
+    depends_on:
+      - postgres
+    # By default, we use SQLite. If you want PostgreSQL, change DATABASE_TYPE to postgres and uncomment the PG environment variables below.
+    # environment:
+    #   - DATABASE_TYPE=postgres
+    #   - DB_HOST=postgres
+    #   - DB_PORT=5432
+    #   - DB_USERNAME=postgres
+    #   - DB_PASSWORD=postgres_password
+    #   - DB_DATABASE=booking_db
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_password
+      - POSTGRES_DB=booking_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  sqlite-data:
+  postgres-data:
